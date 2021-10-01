@@ -33,8 +33,8 @@ head(tsdata)
 #exploratory plot
 # consistent uptrend. looks like people are drinking more
 ts_plot <- ggplot(tsdata, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
-  xlab("Month") + ylab("alc. ") + 
-  #scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 month")) + 
+  xlab("Time") + ylab("US Liquor Sales $ (Millions) ") + 
+  scale_x_date(labels = date_format(format= "%Y"),breaks = date_breaks("1 year")) + 
   stat_smooth(colour = "green")
 ts_plot
 
@@ -45,10 +45,13 @@ class(cleaned_tsdata)
 summary(cleaned_tsdata)
 
 #plot with trendline
-plot(cleaned_tsdata, col = "blue", main = "Alc Time Series Data")
+#plot(cleaned_tsdata, col = "blue", main = "US Liquor Sales Over Time ($ Millions)")
+plot(cleaned_tsdata, col = "blue")
 abline(reg=lm(cleaned_tsdata~time(cleaned_tsdata)), col="lightgray") #plotting the trend line
 
-
+#Autocorrelation and Partial Autocorrelation Plots
+Acf(cleaned_tsdata)
+Pacf(cleaned_tsdata)
 
 
 ########## 2. Stationarize the series
