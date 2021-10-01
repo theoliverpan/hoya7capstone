@@ -14,11 +14,10 @@ library(Rcpp)
 
 # read data
 tsdata <- read.csv('/Users/oliverpanbiz/Documents/hoya7capstone/usliquorsales.csv'
-                   ,header =TRUE)
+                   ,header =TRUE, sep=",",stringsAsFactors = F)
 summary(tsdata)
 names(tsdata)
 head(tsdata)
-
 
 ########## 1. Data Exploration
 
@@ -27,7 +26,9 @@ sum(is.na(tsdata))
 # no missing data
 
 #Convert the date field from character to date type
-tsdata$Period <- as.Date(tsdata$Period, "%m/%d/%Y")
+#Oliver - I'm stuck on date conversion
+tsdata$Period <- CAST(tsdata$Period AS DATE)
+tsdata$dates <- as.Date(tsdata$Period, "%m/%d/%Y")
 head(tsdata)
 
 #exploratory plot
