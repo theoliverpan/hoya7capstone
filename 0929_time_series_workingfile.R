@@ -27,26 +27,29 @@ sum(is.na(tsdata))
 
 #Convert the date field from character to date type
 tsdata$Period <- as.Date(tsdata$Period, format="%m/%d/%y")
+tsdata$Value <- as.numeric(tsdata$Value)
+summary(tsdata)
 head(tsdata)
-
 #exploratory plot
-#oliver: my plot looks weird feel free to take a stab
+# consistent uptrend. looks like people are drinking more
 ts_plot <- ggplot(tsdata, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
   xlab("Month") + ylab("alc. ") + 
   #scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 month")) + 
   stat_smooth(colour = "green")
-
 ts_plot
 
 
 #conver to ts
+cleaned_tsdata <-ts(tsdata[,c('Value')])
+class(cleaned_tsdata)
+summary(cleaned_tsdata)
 
 #plot with trendline
-plot(tsdata, col = "blue", main = "Alc Time Series Data")
-abline(reg=lm(tsdata~time(tsdata)), col="lightgray") #plotting the trend line
+plot(cleaned_tsdata, col = "blue", main = "Alc Time Series Data")
+abline(reg=lm(cleaned_tsdata~time(cleaned_tsdata)), col="lightgray") #plotting the trend line
 
-plot(auto_ts, col = "blue", main = "Auto Sales Time Series Data")
-abline(reg=lm(auto_ts~time(auto_ts)), col="lightgray") #plotting the trend line
+
+
 
 ########## 2. Stationarize the series
 
