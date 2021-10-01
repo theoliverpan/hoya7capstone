@@ -49,10 +49,19 @@ summary(cleaned_tsdata)
 plot(cleaned_tsdata, col = "blue")
 abline(reg=lm(cleaned_tsdata~time(cleaned_tsdata)), col="lightgray") #plotting the trend line
 
+#Test of stationary
+adf.test(cleaned_tsdata)
+
+# Using differencing to make data stationary
+
+
+
 #Autocorrelation and Partial Autocorrelation Plots
 Acf(cleaned_tsdata)
 Pacf(cleaned_tsdata)
 
+#Lag plot of Data
+gglagplot(cleaned_tsdata, set.lags=1:16)
 
 ########## 2. Stationarize the series
 
