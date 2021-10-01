@@ -13,8 +13,8 @@ library(lmtest)
 library(Rcpp)
 
 # read data
-tsdata <- read.csv('/Users/oliverpanbiz/Documents/hoya7capstone/usliquorsales.csv'
-                   ,header =TRUE, sep=",",stringsAsFactors = F)
+tsdata <- read.csv('/Users/oliverpanbiz/Documents/hoya7capstone/usliquorsales_changed_op.csv'
+                   ,header =TRUE,stringsAsFactors = F)
 summary(tsdata)
 names(tsdata)
 head(tsdata)
@@ -26,17 +26,14 @@ sum(is.na(tsdata))
 # no missing data
 
 #Convert the date field from character to date type
-#Oliver - I'm stuck on date conversion
-tsdata$Period <- CAST(tsdata$Period AS DATE)
-tsdata$dates <- as.Date(tsdata$Period, "%m/%d/%Y")
+tsdata$Period <- as.Date(tsdata$Period, format="%m/%d/%y")
 head(tsdata)
 
 #exploratory plot
-ts_plot <- ggplot(tsdata, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
-  xlab("Month") + ylab("Sales") + 
+ts_plot <- ggplot(auto, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
+  xlab("Month") + ylab("Auto Sales in Thousands") + 
   scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + 
   stat_smooth(colour = "green")
-ts_plot
 
 ########## 2. Stationarize the series
 
