@@ -118,7 +118,7 @@ plot(residuals(dfit1))
 
 Acf(residuals(dfit1))
 Pacf(residuals(dfit1))
-
+summary(dfit1)
 #Because the seasonal pattern is strong and stable, 
 #we will want to use an order of seasonal differencing in the model. 
 #Before that let’s try only with one seasonal difference i.e ARIMA(0,0,0)(0,1,0)
@@ -135,9 +135,39 @@ Acf(residuals(dfit3))
 Pacf(residuals(dfit3))
 
 
+
+dfit5 <- arima(cleaned_tsdata1, order =c(1,1,0), 
+               seasonal = list(order = c(0,1,1), period = 12))
+plot(residuals(dfit5)) 
+Acf(residuals(dfit5)) 
+Pacf(residuals(dfit5))
+
+summary(dfit5)
+
+
+coeftest(dfit5)
+
+
+dfit6 <- auto.arima(cleaned_tsdata)
+summary(dfit6)
+
+dfit7 = arima(cleaned_tsdata1, order =c(2,1,2), seasonal = list(order = c(0,2,2), period = 12))
+summary(dfit7)
+coeftest(dfit7)
+
 ########## 5. Make predictions
 
+hold <- window(ts(cleaned_tsdata1), start =327)
+
+fit_predicted <- arima(ts(cleaned_tsdata1[-c(327:351)]), order =c(0,1,1), seasonal = list(order = c(0,1,1), period = 12))
+forecast_pred <- forecast(fit_predicted,h=24) 
+plot(forecast_pred, main="")
+lines(ts(my_ts))
 
 
+
+#forecasting
+f_values <-forecast(dfit7, h=24) 
+plot(f_values, main="")
 
 
