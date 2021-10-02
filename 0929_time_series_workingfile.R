@@ -40,7 +40,7 @@ ts_plot
 
 
 #conver to ts
-cleaned_tsdata <-ts(tsdata[,c('Value')])
+cleaned_tsdata <-ts(tsdata[,c('Value')],frequency=12)
 class(cleaned_tsdata)
 summary(cleaned_tsdata)
 
@@ -52,8 +52,6 @@ abline(reg=lm(cleaned_tsdata~time(cleaned_tsdata)), col="lightgray") #plotting t
 #Test of stationary
 adf.test(cleaned_tsdata)
 
-# Using differencing to make data stationary
-
 
 
 #Autocorrelation and Partial Autocorrelation Plots
@@ -62,10 +60,27 @@ Pacf(cleaned_tsdata)
 
 #Lag plot of Data
 gglagplot(cleaned_tsdata, set.lags=1:16)
+# 12 is the strongest
 
-########## 2. Stationarize the series
+#component.ts = decompose(cleaned_tsdata) 
+#plot(component.ts)
 
-########## 3. Plot ACF/PACF charts and find optimal parameters
+component.tsm2 = decompose(cleaned_tsdata, type="multiplicative", filter=NULL)
+plot(component.tsm2)
+
+# clean data
+class(tsdata)
+
+
+tsdata$lsales <-tsclean(unlist(cleaned_tsdata))
+
+#plot
+c_ts_plot <- ggplot(tsdata, aes(Period,lsales)) + geom_line(na.rm=TRUE) +
+  xlab("Month") + ylab("Liquor Sales in Thousands") +
+  scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + stat_smooth(colour="green")
+c_ts_plot
+
+
 
 ########## 4. Build the ARIMA model
 
