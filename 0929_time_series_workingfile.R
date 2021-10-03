@@ -34,7 +34,8 @@ head(tsdata)
 # consistent uptrend. looks like people are drinking more
 ts_plot <- ggplot(tsdata, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
   xlab("Time") + ylab("US Liquor Sales $ (Millions) ") + 
-  scale_x_date(labels = date_format(format= "%Y"),breaks = date_breaks("1 year")) + 
+  ggtitle('Uncleaned Data') +
+  scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + stat_smooth(colour="green") +
   stat_smooth(colour = "green")
 ts_plot
 
@@ -75,22 +76,20 @@ cleaned_tsdata1 <-ts(tsdata[,c('Value')])
 class(cleaned_tsdata1)
 tsdata$lsales <-tsclean(cleaned_tsdata1)
 
-#Plot the cleaned data
+#Plot cleaned data
 c_ts_plot <- ggplot(tsdata, aes(Period,lsales)) + geom_line(na.rm=TRUE) + 
-  xlab("Month") + ylab(" Sales in Thousands") + 
+  xlab("Month") + ylab("US Liqour Sales $ (Millions)") + 
+  ggtitle('Cleaned Data') +
   scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + 
-  stat_smooth(colour="green")
-c_ts_plot
-
-#compare cleaned vs. uncleaned plots
-grid.arrange(ts_plot,c_ts_plot,ncol=1, top = textGrob("Uncleaned vs Cleaned Series"))
-
-
-#plot
-c_ts_plot <- ggplot(tsdata, aes(Period,lsales)) + geom_line(na.rm=TRUE) +
-  xlab("Month") + ylab("Liquor Sales in Thousands") +
+  stat_smooth(colour="green")+
   scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + stat_smooth(colour="green")
 c_ts_plot
+
+
+#compare cleaned vs. uncleaned plots
+grid.arrange(ts_plot,c_ts_plot,ncol=1, top = textGrob("Uncleaned (Top) vs Cleaned (Bottom) Series"))
+
+
 
 #We can remove the trend simply by differencing the data
 alc_dif <-diff(cleaned_tsdata1)
@@ -167,7 +166,7 @@ lines(ts(my_ts))
 
 
 #forecasting
-f_values <-forecast(dfit7, h=24) 
+f_values <-forecast(dfit7, h=12) 
 plot(f_values, main="")
 
 
