@@ -158,6 +158,10 @@ dfit7 = arima(cleaned_tsdata1, order =c(2,1,2), seasonal = list(order = c(0,2,2)
 summary(dfit7)
 coeftest(dfit7)
 
+dfit71 = arima(diff12, order =c(2,1,2), seasonal = list(order = c(0,2,2), period = 12))
+summary(dfit71)
+coeftest(dfit71)
+
 ########## 5. Make predictions
 
 hold <- window(ts(cleaned_tsdata1), start =327)
