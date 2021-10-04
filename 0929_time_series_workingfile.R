@@ -111,6 +111,10 @@ Pacf(my_ts)
 #this didn't seem to do a whole lot
 
 
+#diff cleaned data
+diff12 <- diff(cleaned_tsdata,12)
+plot(diff12)
+
 ########## 4. Build the ARIMA model, from Dani's code
 dfit1 <-arima(cleaned_tsdata, order=c(0,1,0))
 plot(residuals(dfit1))
@@ -147,7 +151,7 @@ summary(dfit5)
 coeftest(dfit5)
 
 
-dfit6 <- auto.arima(cleaned_tsdata)
+dfit6 <- auto.arima(diff12)
 summary(dfit6)
 
 dfit7 = arima(cleaned_tsdata1, order =c(2,1,2), seasonal = list(order = c(0,2,2), period = 12))
