@@ -33,7 +33,7 @@ head(tsdata)
 #exploratory plot
 # consistent uptrend. looks like people are drinking more
 ts_plot <- ggplot(tsdata, aes(Period,Value)) + geom_line(na.rm=TRUE) + 
-  xlab("Time") + ylab("US Liquor Sales $ (Millions) ") + 
+  xlab("Year") + ylab("US Liquor Sales $ (Millions) ") + 
   ggtitle('Uncleaned Data') +
   scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + stat_smooth(colour="green") +
   stat_smooth(colour = "green")
@@ -78,7 +78,7 @@ tsdata$lsales <-tsclean(cleaned_tsdata1)
 
 #Plot cleaned data
 c_ts_plot <- ggplot(tsdata, aes(Period,lsales)) + geom_line(na.rm=TRUE) + 
-  xlab("Month") + ylab("US Liqour Sales $ (Millions)") + 
+  xlab("Year") + ylab("US Liqour Sales $ (Millions)") + 
   ggtitle('Cleaned Data') +
   scale_x_date(labels = date_format(format= "%b-%Y"),breaks = date_breaks("1 year")) + 
   stat_smooth(colour="green")+
@@ -161,6 +161,42 @@ coeftest(dfit7)
 dfit71 = arima(diff12, order =c(2,1,2), seasonal = list(order = c(0,2,2), period = 12))
 summary(dfit71)
 coeftest(dfit71)
+
+Acf(diff12)
+Pacf(diff12)
+tsplot(diff12)
+
+
+##### 1005 new code
+diffdata = diff(cleaned_tsdata)
+
+
+
+AutoModel = auto.arima(diffdata, seasonal = TRUE)
+summary(AutoModel)
+
+
+
+## BASELINE AIC 4073
+Model1 = arima(diffdata, order =c(2,1,1), seasonal = list(order = c(0,2,2), period = 12))
+summary(Model1)
+coeftest(Model1)
+
+
+
+## Changed Order
+Model2 = arima(diffdata, order =c(2,1,2), seasonal = list(order = c(0,2,2), period = 12))
+summary(Model2)
+coeftest(Model2)
+
+
+
+## Changed List Order
+FinalModel = arima(diffdata, order =c(2,1,2), seasonal = list(order = c(0,1,2), period = 12))
+summary(FinalModel)
+coeftest(FinalModel)
+
+
 
 ########## 5. Make predictions
 
