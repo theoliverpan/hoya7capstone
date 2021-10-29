@@ -1,0 +1,215 @@
+---
+title: "Capstone Project Diabetes Dataset"
+author: "Dani Herzberg"
+date: "10/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(plyr)
+library(tidyverse)
+library(readxl)
+library(moments) # assess skewness
+library(gdata)
+library(stringr)
+library(lubridate)
+library(scales)
+library(graphics)
+library(caret)
+library(magrittr)
+library(tidyr)
+library(reshape2)
+library(plotly)
+library(car) # run qq plot
+library(lmtest) # assess homoscedasticity
+library(MASS)
+library(faraway)
+library(e1071)
+library(dplyr)
+library(ggplot2)
+library(class)
+library(caret)
+library(data.table)
+library(ROCR)
+library(ROSE) #Sampling-over and under, ROC and AUC curve
+library(tidyverse)
+library("rdd")
+library(Formula)
+library("rddensity")
+library("gridExtra")
+library(ivreg)
+library(dataprep)
+library("Synth")
+library(jtools)
+library(kableExtra)
+library("funModeling") 
+library(tidyverse) 
+library(Hmisc)
+library("corrplot")
+library("mice")
+library("ggcorrplot")
+library("janitor")
+library("vtree")
+
+
+```
+
+## Load Packages
+
+```{r data}
+getwd()
+diabetes.data <- read.csv("diabetic_data.csv")
+# diabetes.data <- read.csv("Desktop/Georgetown/Hoya 7/diabetic_data.csv")
+head(diabetes.data)
+str(diabetes.data)
+dim(diabetes.data)
+```
+## Introduction to Bias
+
+
+## Preliminary EDA
+
+The data set is comprised of 101766 observations of 50 columns. This means that there are just over 500k data points. 
+There were also some missing variables in this data - but this was mainly seen in columns that do not appear to be crucial to our analysis
+
+```{r load data}
+
+#preliminary EDA
+glimpse(diabetes.data)
+
+#convert the following to numeric: diabetesMed, readmitted, change, insulin, gender, race, age, weight, medical_specialty 
+# can add more later - but this is used for start of analysis 
+# how to pick which out of the 50 columns are important for analysis?? 
+diabetes.data$diabetesMed = as.numeric(diabetes.data$diabetesMed)
+diabetes.data$readmitted = as.factor(diabetes.data$readmitted)
+diabetes.data$change = as.factor(diabetes.data$change)
+diabetes.data$insulin = as.factor(diabetes.data$insulin)
+diabetes.data$gender = as.factor(diabetes.data$gender)
+diabetes.data$race = as.factor(diabetes.data$race)
+diabetes.data$age = as.factor(diabetes.data$age)
+# diabetes.data$weight = as.numeric(diabetes.data$weight)
+diabetes.data$medical_specialty = as.factor(diabetes.data$medical_specialty)
+
+#checking missing values
+diabetes.data  %>%
+  summarise_all(list(~is.na(.)))%>%
+  pivot_longer(everything(),
+               names_to = "variables", values_to="missing") %>%
+  count(variables, missing) %>%
+  ggplot(aes(y=variables,x=n,fill=missing))+
+  geom_col()
+
+#re-check missing values 
+sum(is.na(diabetes.data)) # this is only with the variables that were included above, I think issue with ? in file 
+
+#Data Distribution
+freq(diabetes.data) 
+freq(diabetes.data$readmitted) 
+
+
+#Data Profiling
+print(profiling_num(diabetes.data))
+plot_num(diabetes.data)
+
+```
+
+## Data Distribution 
+
+```{r data dist}
+
+tabyl(diabetes.data, readmitted, number_diagnoses) # can pick something else for number_diagnoses 
+
+tabyl(diabetes.data, readmitted, number_diagnoses) %>%
+  adorn_percentages("col") %>%
+  adorn_pct_formatting(digits = 1)
+
+
+vtree(diabetes.data, c("readmitted", "gender"), 
+  horiz = FALSE, fillcolor = c(LanguageGroup = "#e7d4e8", 
+  Gender = "#99d8c9", Hobbyist = "#9ecae1"), 
+  keep = list(LanguageGroup = c("R", "Both")), showcount = FALSE) 
+
+vtree(diabetes.data, c("readmitted", "race"), 
+  horiz = FALSE, fillcolor = c(LanguageGroup = "#e7d4e8", 
+  Gender = "#99d8c9", Hobbyist = "#9ecae1"), 
+  keep = list(LanguageGroup = c("R", "Both")), showcount = FALSE) 
+
+vtree(diabetes.data, c("readmitted", "insulin"), 
+  horiz = FALSE, fillcolor = c(LanguageGroup = "#e7d4e8", 
+  Gender = "#99d8c9", Hobbyist = "#9ecae1"), 
+  keep = list(LanguageGroup = c("R", "Both")), showcount = FALSE) 
+
+```
+
+
+## Data Cleanup -- ENDED HERE Oct 29
+# Next Steps: pick top vars, unless we want a corr plot with 50 vars 
+
+```{r load data}
+
+stroke.data1 = stroke.data[-1]
+
+#Female is 1 and Male is 2
+stroke.data1$gender = as.factor(stroke.data1$gender)
+stroke.data1$gender = as.numeric(stroke.data1$gender)
+
+#Every Married Yes = 1 and No = 0 
+stroke.data1$ever_married<-ifelse(stroke.data1$ever_married=="Yes",1,0)
+stroke.data1$ever_married = as.numeric(stroke.data1$ever_married)
+
+
+stroke.data1$work_type = as.factor(stroke.data1$work_type)
+stroke.data1$work_type = as.numeric(stroke.data1$work_type)
+
+stroke.data1$Residence_type = as.factor(stroke.data1$Residence_type)
+stroke.data1$Residence_type = as.numeric(stroke.data1$Residence_type)
+
+stroke.data1$smoking_status = as.factor(stroke.data1$smoking_status)
+stroke.data1$smoking_status = as.numeric(stroke.data1$smoking_status)
+
+
+str(stroke.data1)
+
+```
+
+
+## Impute for Missing Values
+
+```{r load data}
+
+#Here we will use the mice package that will help us do the imputation (we are going for 1 imputation, m=1)
+
+impute_stroke <-mice(stroke.data,m=1,seed = 1111)
+stroke.data<-complete(impute_stroke,1)
+str(stroke.data)
+
+impute_stroke <-mice(stroke.data1,m=1,seed = 1111)
+stroke.data1<-complete(impute_stroke,1)
+str(stroke.data1)
+
+```
+
+## Incremental Analytics 
+
+```{r load data}
+
+#Correlation Analysis
+
+correlation = cor(stroke.data1)
+
+corrplot(cor(stroke.data1), method = "shade", tl.col = "black", tl.cex = .75) 
+
+corrplot(cor(stroke.data1), type = "lower", tl.col = "black", tl.cex = .9) 
+
+```
+
+
+
+```{r echo = FALSE}
+
+
+
+```
